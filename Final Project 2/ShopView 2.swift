@@ -5,160 +5,250 @@ struct ShopView: View {
 
     var body: some View {
         NavigationStack {
-            List {
-                Section("資源：兵馬（Troops）") {
-                    ShopRow(
-                        title: "徵召鄉勇（+100 兵）",
-                        price: 50,
-                        canBuy: state.ip >= 50
-                    ) {
-                        if state.spendIP(50) {
-                            state.addTroops(100)
-                        }
-                    }
-                    ShopRow(
-                        title: "精銳步兵（+1000 兵）",
-                        price: 450,
-                        canBuy: state.ip >= 450
-                    ) {
-                        if state.spendIP(450) {
-                            state.addTroops(1000)
-                        }
-                    }
-                }
+            ScrollView(.vertical) {
+                VStack(alignment: .leading, spacing: 20) {
 
-                Section("資源：糧草（Rations）") {
-                    ShopRow(
-                        title: "小型糧倉（+100 糧）",
-                        price: 100,
-                        canBuy: state.ip >= 100
-                    ) {
-                        if state.spendIP(100) {
-                            state.addRations(100)
-                        }
-                    }
-                    ShopRow(
-                        title: "大型糧倉（+300 糧）",
-                        price: 300,
-                        canBuy: state.ip >= 300
-                    ) {
-                        if state.spendIP(300) {
-                            state.addRations(300)
-                        }
-                    }
-                }
+                    // 資源：兵馬（Troops） - 橫向卷動
+                    Text("資源：兵馬")
+                        .font(.title3.weight(.semibold))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal)
 
-                Section("武將（永久資產）") {
-                    ForEach(GeneralCatalog.all) { general in
-                        GeneralRow(
-                            general: general,
-                            owned: state.has(general),
-                            canBuy: state.ip >= general.price
-                        ) {
-                            guard !state.has(general) else { return }
-                            if state.spendIP(general.price) {
-                                state.own(general)
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 14) {
+                            TroopCard(
+                                title: "徵召鄉勇",
+                                subtitle: "+100 兵",
+                                price: 50,
+                                canBuy: state.ip >= 50
+                            ) {
+                                if state.spendIP(50) {
+                                    state.addTroops(100)
+                                }
+                            }
+
+                            TroopCard(
+                                title: "精銳步兵",
+                                subtitle: "+1000 兵",
+                                price: 450,
+                                canBuy: state.ip >= 450
+                            ) {
+                                if state.spendIP(450) {
+                                    state.addTroops(1000)
+                                }
                             }
                         }
+                        .padding(.horizontal)
                     }
-                }
 
-                Section("資產概況") {
-                    HStack { Text("IP"); Spacer(); Text("\(state.ip)") }
-                    HStack { Text("兵馬"); Spacer(); Text("\(state.troops)") }
-                    HStack { Text("糧草"); Spacer(); Text("\(state.rations)") }
-                    HStack(alignment: .top) {
-                        Text("武將")
-                        Spacer()
-                        Text(state.ownedGenerals.map { GeneralCatalog.byID($0)?.displayName ?? $0 }.joined(separator: "、"))
-                            .multilineTextAlignment(.trailing)
+                    // 資源：糧草（Rations） - 橫向卷動
+                    Text("資源：糧草")
+                        .font(.title3.weight(.semibold))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal)
+
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 14) {
+                            RationCard(
+                                title: "小型糧倉",
+                                subtitle: "+100 糧",
+                                price: 100,
+                                canBuy: state.ip >= 100
+                            ) {
+                                if state.spendIP(100) {
+                                    state.addRations(100)
+                                }
+                            }
+
+                            RationCard(
+                                title: "大型糧倉",
+                                subtitle: "+300 糧",
+                                price: 300,
+                                canBuy: state.ip >= 300
+                            ) {
+                                if state.spendIP(300) {
+                                    state.addRations(300)
+                                }
+                            }
+                        }
+                        .padding(.horizontal)
                     }
+
+                    // 武將（永久資產） - 橫向卷動，大圖、正方形、對齊頂部
+                    Text("武將")
+                        .font(.title3.weight(.semibold))
+                        .foregroundStyle(.white)
+                        .padding(.horizontal)
+
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 14) {
+                            ForEach(GeneralCatalog.all) { general in
+                                GeneralBigCard(
+                                    general: general,
+                                    owned: state.has(general),
+                                    canBuy: state.ip >= general.price
+                                ) {
+                                    guard !state.has(general) else { return }
+                                    if state.spendIP(general.price) {
+                                        state.own(general)
+                                    }
+                                }
+                            }
+                        }
+                        .padding(.horizontal)
+                    }
+
+                    // 資產概況
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("資產概況")
+                            .font(.title3.weight(.semibold))
+                            .foregroundStyle(.white)
+                        VStack(spacing: 8) {
+                            HStack { Text("IP").foregroundStyle(.white); Spacer(); Text("\(state.ip)").foregroundStyle(.white) }
+                            HStack { Text("兵馬").foregroundStyle(.white); Spacer(); Text("\(state.troops)").foregroundStyle(.white) }
+                            HStack { Text("糧草").foregroundStyle(.white); Spacer(); Text("\(state.rations)").foregroundStyle(.white) }
+                            HStack(alignment: .top) {
+                                Text("武將").foregroundStyle(.white)
+                                Spacer()
+                                Text(state.ownedGenerals.map { GeneralCatalog.byID($0)?.displayName ?? $0 }.joined(separator: "、"))
+                                    .foregroundStyle(.white)
+                                    .multilineTextAlignment(.trailing)
+                            }
+                        }
+                        .padding(12)
+                        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
+                    }
+                    .padding(.horizontal)
+
                 }
+                .padding(.vertical, 16)
             }
-            .listStyle(.insetGrouped)
-            .scrollContentBackground(.hidden) // 讓 List 背景透明
-            .background(Color.clear)          // 讓底層背景圖透出
+            .background(Color.clear) // 讓底層背景透出
             .navigationTitle("招兵買馬")
+            .toolbarBackground(.hidden, for: .navigationBar)
         }
     }
 }
 
-private struct ShopRow: View {
+private struct TroopCard: View {
     let title: String
+    let subtitle: String
     let price: Int
     let canBuy: Bool
     let action: () -> Void
 
     var body: some View {
-        HStack {
-            VStack(alignment: .leading) {
-                Text(title)
-                Text("價格：\(price) IP").font(.caption).foregroundStyle(.secondary)
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.headline)
+                .foregroundStyle(.black)
+            Text(subtitle)
+                .font(.subheadline)
+                .foregroundStyle(.black.opacity(0.8))
+
+            Spacer(minLength: 4)
+
+            HStack {
+                Text("\(price) IP")
+                    .font(.caption)
+                    .foregroundStyle(.black.opacity(0.7))
+                Spacer()
+                Button("購買", action: action)
+                    .buttonStyle(.borderedProminent)
+                    .disabled(!canBuy)
             }
-            Spacer()
-            Button("購買") {
-                action()
-            }
-            .buttonStyle(.borderedProminent)
-            .disabled(!canBuy)
         }
+        .padding(12)
+        .frame(width: 240, height: 130, alignment: .topLeading)
+        .background(Color.white.opacity(0.8), in: RoundedRectangle(cornerRadius: 12))
+        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.black.opacity(0.1)))
     }
 }
 
-private struct GeneralRow: View {
+private struct RationCard: View {
+    let title: String
+    let subtitle: String
+    let price: Int
+    let canBuy: Bool
+    let action: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.headline)
+                .foregroundStyle(.black)
+            Text(subtitle)
+                .font(.subheadline)
+                .foregroundStyle(.black.opacity(0.8))
+
+            Spacer(minLength: 4)
+
+            HStack {
+                Text("\(price) IP")
+                    .font(.caption)
+                    .foregroundStyle(.black.opacity(0.7))
+                Spacer()
+                Button("購買", action: action)
+                    .buttonStyle(.borderedProminent)
+                    .disabled(!canBuy)
+            }
+        }
+        .padding(12)
+        .frame(width: 240, height: 130, alignment: .topLeading)
+        .background(Color.white.opacity(0.8), in: RoundedRectangle(cornerRadius: 12))
+        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.black.opacity(0.1)))
+    }
+}
+
+private struct GeneralBigCard: View {
     let general: General
     let owned: Bool
     let canBuy: Bool
     let onBuy: () -> Void
 
-    var body: some View {
-        HStack(spacing: 12) {
-            Image(general.imageName)
-                .resizable()
-                .scaledToFill()
-                .frame(width: 48, height: 48)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
-                .overlay(RoundedRectangle(cornerRadius: 8).stroke(.secondary.opacity(0.2)))
+    private let imageSize: CGFloat = 150
 
-            VStack(alignment: .leading, spacing: 4) {
-                Text(general.displayName)
-                    .font(.headline)
-                Text(general.type == .warrior ? "武力型" : "智力型")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                HStack(spacing: 10) {
-                    if general.attackBonus > 0 {
-                        Text("攻擊 +\(Int(general.attackBonus * 100))%").font(.caption2)
-                    }
-                    if general.enemyMoraleMultiplier < 1.0 {
-                        Text("敵士氣 -\(Int((1 - general.enemyMoraleMultiplier) * 100))%").font(.caption2)
-                    }
-                    if general.lossReduction > 0 {
-                        Text("戰損 -\(Int(general.lossReduction * 100))%").font(.caption2)
-                    }
-                    if general.defeatLossHalve {
-                        Text("敗北損失減半").font(.caption2)
-                    }
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            ZStack(alignment: .topTrailing) {
+                // 大正方形，對齊頂部
+                Image(general.imageName)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: imageSize, height: imageSize, alignment: .top) // 對齊頂部裁切
+                    .clipped()
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.black.opacity(0.12)))
+
+                if owned {
+                    Text("已擁有")
+                        .font(.caption2.weight(.semibold))
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 3)
+                        .background(.ultraThinMaterial, in: Capsule())
+                        .overlay(Capsule().stroke(Color.black.opacity(0.1)))
+                        .offset(x: -6, y: 6)
                 }
-                .foregroundStyle(.secondary)
             }
 
-            Spacer()
+            Text(general.displayName)
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(.white)
 
-            if owned {
-                Text("已擁有")
-                    .font(.caption)
-                    .foregroundStyle(.green)
-            } else {
-                VStack(alignment: .trailing) {
+            HStack {
+                if !owned {
                     Text("\(general.price) IP")
                         .font(.caption)
-                        .foregroundStyle(.secondary)
-                    Button("購買") { onBuy() }
+                        .foregroundStyle(.white.opacity(0.8))
+                    Spacer()
+                    Button("購買", action: onBuy)
                         .buttonStyle(.borderedProminent)
                         .disabled(!canBuy)
+                } else {
+                    Spacer()
                 }
             }
         }
+        .frame(width: imageSize, alignment: .top)
     }
 }

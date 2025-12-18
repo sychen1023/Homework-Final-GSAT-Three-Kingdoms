@@ -8,13 +8,13 @@
 import SwiftUI
 
 private enum Theme {
-    // 暖金橘（夕陽）
-    static let accent = Color(.sRGB, red: 0.95, green: 0.65, blue: 0.20, opacity: 1.0)
+    // 淺黃色（accent）
+    static let accent = Color(.sRGB, red: 0.85, green: 0.65, blue: 0.05, opacity: 1.0)
     // 主要前景（柔和白）
-    static let primaryFG = Color.white.opacity(0.95)
+    static let primaryFG = Color.white.opacity(0.65)
     // 次要前景（較淡的白）
-    static let secondaryFG = Color.white.opacity(0.75)
-    // 卡片底（半透明深色）
+    static let secondaryFG = Color.white.opacity(0.45)
+    // 卡片底（半透明深色）- 供非首頁使用
     static let cardBG = Color.black.opacity(0.28)
     // 卡片描邊（極淡白）
     static let cardStroke = Color.white.opacity(0.08)
@@ -52,6 +52,7 @@ struct ContentView: View {
                         ZStack {
                             BackgroundView(size: outerGeometry.size)
                             QuizView(state: state)
+                                .foregroundStyle(.white) // 除了導航標題外，整個頁面字體改為白色
                                 .navigationTitle("研讀兵書")
                                 .toolbarBackground(.hidden, for: .navigationBar)
                                 .background(Color.clear)
@@ -119,7 +120,7 @@ struct ContentView: View {
                 }
                 .tabItem { Label("錯題整理", systemImage: "xmark.circle.fill") }
             }
-            .tint(Theme.accent)
+            .tint(Theme.accent) // 全域 accent 設為淺黃色
             .background(Color.clear)
             .toolbarBackground(.hidden, for: .tabBar)
             .frame(width: outerGeometry.size.width, height: outerGeometry.size.height, alignment: .center)
@@ -199,13 +200,14 @@ private struct HomeTabView: View {
                             if state.hasRampageBuff {
                                 Label("勢如破竹：下一場士氣 +10%", systemImage: "bolt.fill")
                                     .font(.subheadline.weight(.semibold))
-                                    .foregroundStyle(Theme.accent)
+                                    .foregroundStyle(.black)
                                     .lineLimit(1)
                                     .minimumScaleFactor(0.8)
                             }
                         }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
+                    .foregroundStyle(.black)
                 } label: {
                     ThemedLabel("資源與狀態", systemImage: "cube.box.fill")
                 }
@@ -215,21 +217,21 @@ private struct HomeTabView: View {
                     VStack(alignment: .leading, spacing: 6) {
                         if let stage = Campaign.all.first {
                             Text("當前關卡：\(stage.name)")
-                                .foregroundStyle(Theme.primaryFG)
+                                .foregroundStyle(.black)
                                 .multilineTextAlignment(.leading)
                                 .fixedSize(horizontal: false, vertical: true)
                             Text("敵將：\(stage.enemyGeneral)  兵力：\(stage.enemyTroops)")
-                                .foregroundStyle(Theme.primaryFG)
+                                .foregroundStyle(.black)
                                 .multilineTextAlignment(.leading)
                                 .fixedSize(horizontal: false, vertical: true)
                             Text("所需糧草：\(stage.requiredRations)  地形：\(stage.terrain.display)")
-                                .foregroundStyle(Theme.secondaryFG)
+                                .foregroundStyle(.black)
                                 .font(.footnote)
                                 .multilineTextAlignment(.leading)
                                 .fixedSize(horizontal: false, vertical: true)
                         } else {
                             Text("尚未設定關卡")
-                                .foregroundStyle(Theme.secondaryFG)
+                                .foregroundStyle(.black)
                         }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -242,7 +244,7 @@ private struct HomeTabView: View {
                     let owned = GeneralCatalog.all.filter { state.ownedGenerals.contains($0.id) }
                     if owned.isEmpty {
                         Text("尚未擁有武將，可至「招兵買馬」購買。")
-                            .foregroundStyle(Theme.secondaryFG)
+                            .foregroundStyle(.black)
                             .frame(maxWidth: .infinity, alignment: .leading)
                     } else {
                         LazyVGrid(
@@ -256,19 +258,19 @@ private struct HomeTabView: View {
                                         .scaledToFill()
                                         .frame(width: 80, height: 80)
                                         .clipShape(RoundedRectangle(cornerRadius: 10))
-                                        .overlay(RoundedRectangle(cornerRadius: 10).stroke(Theme.cardStroke))
+                                        .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.black.opacity(0.1)))
 
                                     Text(g.displayName)
                                         .font(.caption.weight(.semibold))
-                                        .foregroundStyle(Theme.primaryFG)
-                                        .shadow(radius: 2)
+                                        .foregroundStyle(.black)
+                                        .shadow(radius: 0)
                                         .lineLimit(1)
                                         .minimumScaleFactor(0.8)
                                 }
                                 .padding(8)
                                 .frame(maxWidth: .infinity)
-                                .background(Theme.cardBG, in: RoundedRectangle(cornerRadius: 12))
-                                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.cardStroke))
+                                .background(Color.white.opacity(0.8), in: RoundedRectangle(cornerRadius: 12))
+                                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.black.opacity(0.1)))
                             }
                         }
                         .frame(maxWidth: .infinity)
@@ -282,15 +284,13 @@ private struct HomeTabView: View {
                     VStack(alignment: .leading, spacing: 6) {
                         HStack {
                             Label("已答對：\(state.answeredCorrect.count)", systemImage: "checkmark.circle.fill")
-                                .foregroundStyle(.green)
                             Spacer(minLength: 8)
                             Label("錯題：\(state.answeredWrong.count)", systemImage: "xmark.circle.fill")
-                                .foregroundStyle(.red)
                         }
-                        .foregroundStyle(Theme.primaryFG)
+                        .foregroundStyle(.black)
                         Text("提示：已答對的題目不再出現；錯題可在「錯題整理」中練習。")
                             .font(.footnote)
-                            .foregroundStyle(Theme.secondaryFG)
+                            .foregroundStyle(.black)
                             .multilineTextAlignment(.leading)
                             .fixedSize(horizontal: false, vertical: true)
                     }
@@ -494,8 +494,8 @@ private struct ThemedGroupBox<Content: View, Label: View>: View {
         GroupBox {
             content
                 .padding(12)
-                .background(Theme.cardBG, in: RoundedRectangle(cornerRadius: 12))
-                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.cardStroke))
+                .background(Color.white.opacity(0.8), in: RoundedRectangle(cornerRadius: 12))
+                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.black.opacity(0.1)))
         } label: {
             label
         }
@@ -511,7 +511,7 @@ private struct ThemedLabel: View {
     }
     var body: some View {
         Label(title, systemImage: systemImage)
-            .foregroundStyle(Theme.primaryFG)
+            .foregroundStyle(.black)
     }
 }
 
@@ -522,19 +522,19 @@ private struct ThemedStatBadge: View {
         VStack(spacing: 4) {
             Text(title)
                 .font(.caption.weight(.medium))
-                .foregroundStyle(Theme.secondaryFG)
+                .foregroundStyle(.black)
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
             Text("\(value)")
                 .font(.title3.weight(.bold))
-                .foregroundStyle(Theme.primaryFG)
+                .foregroundStyle(.black)
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
         }
         .padding(10)
         .frame(maxWidth: .infinity)
-        .background(Theme.cardBG, in: RoundedRectangle(cornerRadius: 10))
-        .overlay(RoundedRectangle(cornerRadius: 10).stroke(Theme.cardStroke))
+        .background(Color.white.opacity(0.8), in: RoundedRectangle(cornerRadius: 10))
+        .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.black.opacity(0.1)))
     }
 }
 
