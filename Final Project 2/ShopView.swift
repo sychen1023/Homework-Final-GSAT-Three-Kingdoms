@@ -7,7 +7,8 @@
 
 import SwiftUI
 
-struct ShopView: View {
+// 舊版商店畫面（Legacy），避免與新版 ShopView 2.swift 衝突
+struct LegacyShopView: View {
     @ObservedObject var state: GameState
 
     var body: some View {
@@ -61,7 +62,7 @@ struct ShopView: View {
                     HStack { Text("糧草"); Spacer(); Text("\(state.rations)") }
                 }
             }
-            .navigationTitle("招兵買馬")
+            .navigationTitle("招兵買馬（舊版）")
         }
     }
 }

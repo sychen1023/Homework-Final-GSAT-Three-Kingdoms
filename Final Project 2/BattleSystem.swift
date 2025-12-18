@@ -7,7 +7,8 @@
 
 import Foundation
 
-struct BattleOutcome {
+// 舊版戰鬥結果（Legacy），避免與新版 BattleSystem 2.swift 衝突
+struct LegacyBattleOutcome {
     let victory: Bool
     let myLosses: Int
     let enemyLosses: Int
@@ -16,11 +17,11 @@ struct BattleOutcome {
 }
 
 @MainActor
-enum BattleSystem {
-    static func fight(stage: Stage, commitTroops: Int, state: GameState) -> BattleOutcome {
+enum LegacyBattleSystem {
+    static func fight(stage: Stage, commitTroops: Int, state: GameState) -> LegacyBattleOutcome {
         // 檢查糧草
         guard state.rations >= stage.requiredRations else {
-            return BattleOutcome(
+            return LegacyBattleOutcome(
                 victory: false,
                 myLosses: 0,
                 enemyLosses: 0,
@@ -63,8 +64,8 @@ enum BattleSystem {
         }
 
         // 扣除兵力（不會小於 0）
-        myLosses = min(commitTroops, myLosses)
-        state.troops = max(0, state.troops - myLosses)
+        let appliedLosses = min(commitTroops, myLosses)
+        state.troops = max(0, state.troops - appliedLosses)
 
         var notes = victory ? "勝利！" : "戰敗…"
         if victory && stage.rewardIP > 0 {
@@ -72,9 +73,9 @@ enum BattleSystem {
             notes += " 獲得 \(stage.rewardIP) IP。"
         }
 
-        return BattleOutcome(
+        return LegacyBattleOutcome(
             victory: victory,
-            myLosses: myLosses,
+            myLosses: appliedLosses,
             enemyLosses: enemyLosses,
             moraleUsed: morale,
             notes: notes

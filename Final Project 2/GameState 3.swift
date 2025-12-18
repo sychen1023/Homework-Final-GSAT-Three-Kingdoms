@@ -2,7 +2,7 @@ import Foundation
 import Combine
 
 @MainActor
-final class LegacyGameState2: ObservableObject {
+final class GameState: ObservableObject {
     // 經濟資源
     @Published var ip: Int = 0            // 智力點
     @Published var troops: Int = 0        // 兵馬總量
@@ -16,10 +16,11 @@ final class LegacyGameState2: ObservableObject {
     @Published var currentStageIndex: Int = 0   // 目前推進到的關卡（0 = 涿郡）
 
     // 題目紀錄
-    // - answeredCorrect: 一旦答對就加入，之後不再抽到
-    // - answeredWrong: 曾答錯的題目及錯誤次數（優先抽這些，直到答對為止）
     @Published var answeredCorrect: Set<UUID> = []
     @Published var answeredWrong: [UUID: Int] = [:]
+
+    // 名將擁有清單（使用 General.ID = String，對應圖片資源名）
+    @Published var ownedGenerals: Set<General.ID> = []
 
     // MARK: - 經濟操作
     func addIP(_ value: Int) { ip += value }
@@ -50,16 +51,23 @@ final class LegacyGameState2: ObservableObject {
     }
 
     func markWrong(questionID: UUID) {
-        // 若已經答對過，則不記錄為錯題
         guard !answeredCorrect.contains(questionID) else { return }
         answeredWrong[questionID, default: 0] += 1
     }
 
-    // 清空所有題目紀錄（可用於重置）
     func resetQuestionProgress() {
         answeredCorrect.removeAll()
         answeredWrong.removeAll()
         combo = 0
         hasRampageBuff = false
+    }
+
+    // MARK: - 名將
+    func own(_ general: General) {
+        ownedGenerals.insert(general.id)
+    }
+
+    func has(_ general: General) -> Bool {
+        ownedGenerals.contains(general.id)
     }
 }

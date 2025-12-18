@@ -7,12 +7,13 @@
 
 import SwiftUI
 
-struct BattleView: View {
+// 舊版出征畫面（Legacy），避免與新版 BattleView 2.swift 衝突
+struct LegacyBattleView: View {
     @ObservedObject var state: GameState
     let stage: Stage
 
     @State private var commit: Double = 0
-    @State private var outcome: BattleOutcome?
+    @State private var outcome: LegacyBattleOutcome?
 
     var body: some View {
         NavigationStack {
@@ -43,9 +44,9 @@ struct BattleView: View {
                 Button {
                     let used = Int(commit)
                     guard used > 0 else { return }
-                    outcome = BattleSystem.fight(stage: stage, commitTroops: used, state: state)
+                    outcome = LegacyBattleSystem.fight(stage: stage, commitTroops: used, state: state)
                 } label: {
-                    Text("攻打")
+                    Text("攻打（舊版）")
                         .frame(maxWidth: .infinity)
                         .padding()
                         .background(Color.accentColor)
@@ -71,7 +72,7 @@ struct BattleView: View {
                 Spacer()
             }
             .padding()
-            .navigationTitle("出征")
+            .navigationTitle("出征（舊版）")
         }
     }
 }
