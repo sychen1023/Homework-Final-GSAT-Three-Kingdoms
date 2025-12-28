@@ -104,10 +104,10 @@ enum GeneralCatalog {
             type: .strategist,
             price: 10000,
             imageName: "Zhu-ge-liang",
-            attackBonus: 0.15,               // 神機妙算（簡化：+15% 攻擊）
-            enemyMoraleMultiplier: 0.95,     // 小幅削弱敵方
+            attackBonus: 0.4,               // 神機妙算（簡化：+15% 攻擊）
+            enemyMoraleMultiplier: 0.8,     // 小幅削弱敵方
             lossReduction: 0.10,
-            defeatLossHalve: false
+            defeatLossHalve: true
         )
     ]
 

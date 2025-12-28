@@ -13,56 +13,50 @@ enum BattleSystem {
     static func fight(
         stage: Stage,
         commitTroops: Int,
+        commitRations: Int,
         state: GameState,
         selectedGenerals: [General] = []
     ) -> BattleOutcome {
-        // 檢查糧草
-        guard state.rations >= stage.requiredRations else {
-            return BattleOutcome(
-                victory: false,
-                myLosses: 0,
-                enemyLosses: 0,
-                moraleUsed: 1.0,
-                notes: "糧草不足，士氣渙散（強制戰敗）"
-            )
-        }
-
-        // 消耗糧草
-        state.rations -= stage.requiredRations
-
-        // 基礎士氣
-        var morale = 1.0
-        if state.hasRampageBuff {
-            morale *= 1.10 // 勢如破竹 +10%
-            state.clearRampageBuff()
-        }
-
         // 將領加成彙總
         let totalAttackBonus: Double = selectedGenerals.reduce(0.0) { $0 + $1.attackBonus }
         let enemyMoraleMultiplier: Double = selectedGenerals.reduce(1.0) { $0 * $1.enemyMoraleMultiplier }
         let lossReduction: Double = min(0.80, selectedGenerals.reduce(0.0) { $0 + $1.lossReduction }) // 上限 80%
         let defeatHalve: Bool = selectedGenerals.contains(where: { $0.defeatLossHalve })
 
-        // TCP 計算
-        let myTCPBase = Double(commitTroops) * morale
-        let myTCP = myTCPBase * (1.0 + totalAttackBonus)
+        // 實際兵力依糧草調整
+        let commit = max(0, commitTroops)
+        let rations = max(0, commitRations)
+        let actualTroops: Int
+        if rations >= commit {
+            actualTroops = commit
+        } else {
+            actualTroops = max(0, 2 * rations - commit)
+        }
 
-        let enemyTCPBase = Double(stage.enemyTroops) * stage.terrain.multiplier
-        let enemyTCP = enemyTCPBase * enemyMoraleMultiplier
+        // 我方戰鬥力 = 實際兵力 * 將軍加成
+        let myPowerDouble = Double(actualTroops) * (1.0 + totalAttackBonus)
 
-        let victory = myTCP > enemyTCP
+        // 敵方戰鬥力 = 敵方兵力 * 地形加成 * 防守優勢(1.2) * 將軍削弱敵方比例
+        let defenseAdvantage = 1.2
+        let enemyPowerDouble = Double(stage.enemyTroops) * stage.terrain.multiplier * defenseAdvantage * enemyMoraleMultiplier
 
-        // 戰損
+        // 改為抽籤決定勝負
+        let myWeight = max(0, Int(myPowerDouble.rounded()))
+        let enemyWeight = max(0, Int(enemyPowerDouble.rounded()))
+        let totalWeight = max(1, myWeight + enemyWeight)
+        let draw = Int.random(in: 1...totalWeight)
+        let victory = draw <= myWeight
+
         var myLosses: Int
         var enemyLosses: Int
         if victory {
-            let ratio = enemyTCP / max(myTCP, 1)
+            let ratio = enemyPowerDouble / max(myPowerDouble, 1)
             var lossRate = min(0.30, max(0.05, ratio * 0.20))
             lossRate *= (1.0 - lossReduction)
             myLosses = max(10, Int(Double(commitTroops) * lossRate))
             enemyLosses = stage.enemyTroops
         } else {
-            let ratio = myTCP / max(enemyTCP, 1)
+            let ratio = myPowerDouble / max(enemyPowerDouble, 1)
             var lossRate = min(0.70, max(0.40, (1 - ratio) * 0.60))
             lossRate *= (1.0 - lossReduction)
             if defeatHalve {
@@ -75,6 +69,7 @@ enum BattleSystem {
         // 扣除兵力
         myLosses = min(commitTroops, myLosses)
         state.troops = max(0, state.troops - myLosses)
+        state.rations = max(0, state.rations - max(0, commitRations))
 
         var notes = victory ? "勝利！" : "戰敗…"
         if !selectedGenerals.isEmpty {
@@ -90,7 +85,7 @@ enum BattleSystem {
             victory: victory,
             myLosses: myLosses,
             enemyLosses: enemyLosses,
-            moraleUsed: morale,
+            moraleUsed: 1.0,
             notes: notes
         )
     }

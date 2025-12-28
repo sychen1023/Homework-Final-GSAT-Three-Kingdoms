@@ -25,8 +25,13 @@ struct LegacyQuizView: View {
                         Text("[\(q.subject)] \(q.difficulty.displayName) 題")
                             .font(.caption)
                             .foregroundStyle(.secondary)
-                        Text(q.prompt)
-                            .font(.title3).bold()
+                        if containsLatex(q.prompt) {
+                            MathLabelView(latex: normalizeDollarDelimiters(q.prompt), fontSize: 20, textColor: UIColor.label)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        } else {
+                            Text(q.prompt)
+                                .font(.title3).bold()
+                        }
                         ForEach(q.choices.indices, id: \.self) { idx in
                             Button {
                                 answer(idx)
@@ -34,8 +39,13 @@ struct LegacyQuizView: View {
                                 HStack(alignment: .top) {
                                     Text(optionLabel(idx))
                                         .font(.headline)
-                                    Text(q.choices[idx])
-                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                    if containsLatex(q.choices[idx]) {
+                                        MathLabelView(latex: normalizeDollarDelimiters(q.choices[idx]), fontSize: 17, textColor: UIColor.label)
+                                            .frame(maxWidth: .infinity, alignment: .leading)
+                                    } else {
+                                        Text(q.choices[idx])
+                                            .frame(maxWidth: .infinity, alignment: .leading)
+                                    }
                                 }
                                 .padding()
                                 .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 10))
@@ -63,7 +73,15 @@ struct LegacyQuizView: View {
                         }
                         if showExplanation, let exp = current?.explanation {
                             Divider()
-                            Text("解析：\(exp)").font(.footnote)
+                            if containsLatex(exp) {
+                                VStack(alignment: .leading, spacing: 6) {
+                                    Text("解析：").font(.footnote.weight(.semibold))
+                                    MathLabelView(latex: normalizeDollarDelimiters(exp), fontSize: 15, textColor: UIColor.label)
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                }
+                            } else {
+                                Text("解析：\(exp)").font(.footnote)
+                            }
                         }
                     }
                     .padding(12)
@@ -102,5 +120,47 @@ struct LegacyQuizView: View {
         let result = manager.answer(question: q, chosenIndex: idx, state: state)
         lastResult = result
     }
+}
+
+// MARK: - 替代 SwiftMath 的簡單實現
+struct MathLabelView: View {
+    let latex: String
+    let fontSize: CGFloat
+    let textColor: UIColor
+    
+    var body: some View {
+        // 簡化版本：移除 LaTeX 標記並顯示純文字
+        Text(cleanLatexText(latex))
+            .font(.system(size: fontSize))
+            .foregroundStyle(Color(textColor))
+    }
+    
+    private func cleanLatexText(_ text: String) -> String {
+        // 移除常見的 LaTeX 標記
+        return text
+            .replacingOccurrences(of: "$", with: "")
+            .replacingOccurrences(of: "\\", with: "")
+            .replacingOccurrences(of: "_{", with: "_")
+            .replacingOccurrences(of: "^{", with: "^")
+            .replacingOccurrences(of: "}", with: "")
+            .replacingOccurrences(of: "\\frac", with: "")
+            .replacingOccurrences(of: "\\sqrt", with: "√")
+            .replacingOccurrences(of: "\\pi", with: "π")
+            .replacingOccurrences(of: "\\alpha", with: "α")
+            .replacingOccurrences(of: "\\beta", with: "β")
+            .replacingOccurrences(of: "\\gamma", with: "γ")
+            .replacingOccurrences(of: "\\theta", with: "θ")
+            .replacingOccurrences(of: "\\sigma", with: "σ")
+            .replacingOccurrences(of: "\\infty", with: "∞")
+    }
+}
+
+// 輔助函數
+func containsLatex(_ text: String) -> Bool {
+    return text.contains("$") || text.contains("\\")
+}
+
+func normalizeDollarDelimiters(_ text: String) -> String {
+    return text
 }
 

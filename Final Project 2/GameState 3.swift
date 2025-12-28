@@ -4,7 +4,7 @@ import Combine
 @MainActor
 final class GameState: ObservableObject {
     // 經濟資源
-    @Published var ip: Int = 0            // 智力點
+    @Published var ip: Int = 0           // 智力點
     @Published var troops: Int = 0        // 兵馬總量
     @Published var rations: Int = 0       // 糧草總量
 
@@ -21,6 +21,45 @@ final class GameState: ObservableObject {
 
     // 名將擁有清單（使用 General.ID = String，對應圖片資源名）
     @Published var ownedGenerals: Set<General.ID> = []
+
+    // MARK: - 持久化快照
+    struct Snapshot: Codable {
+        var ip: Int
+        var troops: Int
+        var rations: Int
+        var combo: Int
+        var hasRampageBuff: Bool
+        var currentStageIndex: Int
+        var answeredCorrect: [UUID]
+        var answeredWrong: [UUID: Int]
+        var ownedGenerals: [String]
+    }
+
+    func makeSnapshot() -> Snapshot {
+        Snapshot(
+            ip: ip,
+            troops: troops,
+            rations: rations,
+            combo: combo,
+            hasRampageBuff: hasRampageBuff,
+            currentStageIndex: currentStageIndex,
+            answeredCorrect: Array(answeredCorrect),
+            answeredWrong: answeredWrong,
+            ownedGenerals: Array(ownedGenerals)
+        )
+    }
+
+    func apply(snapshot: Snapshot) {
+        self.ip = snapshot.ip
+        self.troops = snapshot.troops
+        self.rations = snapshot.rations
+        self.combo = snapshot.combo
+        self.hasRampageBuff = snapshot.hasRampageBuff
+        self.currentStageIndex = snapshot.currentStageIndex
+        self.answeredCorrect = Set(snapshot.answeredCorrect)
+        self.answeredWrong = snapshot.answeredWrong
+        self.ownedGenerals = Set(snapshot.ownedGenerals)
+    }
 
     // MARK: - 經濟操作
     func addIP(_ value: Int) { ip += value }
@@ -70,4 +109,18 @@ final class GameState: ObservableObject {
     func has(_ general: General) -> Bool {
         ownedGenerals.contains(general.id)
     }
+    
+    // MARK: - 資料重置
+    func reset() {
+        ip = 20000  // 重置為初始值
+        troops = 0
+        rations = 0
+        combo = 0
+        hasRampageBuff = false
+        currentStageIndex = 0
+        answeredCorrect.removeAll()
+        answeredWrong.removeAll()
+        ownedGenerals.removeAll()
+    }
 }
+

@@ -18,7 +18,7 @@ struct AnswerResult {
 
 @MainActor
 final class QuizManager {
-    func answer(question: Question, chosenIndex: Int, state: GameState) -> AnswerResult {
+    func answer(question: Question, chosenIndex: Int, state: GameState, awardImmediately: Bool = true) -> AnswerResult {
         let correct = (chosenIndex == question.answer)
         var base = 0
         var bonus = 0
@@ -36,7 +36,9 @@ final class QuizManager {
                 triggeredRampage = true
             }
 
-            state.addIP(base + bonus)
+            if awardImmediately {
+                state.addIP(base + bonus)
+            }
         } else {
             state.resetCombo()
         }

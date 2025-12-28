@@ -5,8 +5,10 @@ struct BattleView: View {
     let stage: Stage
 
     @State private var commit: Double = 0
+    @State private var commitRations: Double = 0
     @State private var outcome: BattleOutcome?
     @State private var selectedGeneralIDs: Set<General.ID> = []
+    @State private var showOutcomeAlert = false
 
     private let maxGenerals = 3
 
@@ -17,7 +19,6 @@ struct BattleView: View {
                     VStack(alignment: .leading, spacing: 6) {
                         Text("\(stage.name) - 守將：\(stage.enemyGeneral)")
                         Text("守軍兵力：\(stage.enemyTroops)")
-                        Text("所需糧草：\(stage.requiredRations)")
                         Text("地形：\(stage.terrain.display)")
                     }
                 }
@@ -28,6 +29,11 @@ struct BattleView: View {
                         HStack {
                             Text("投入兵力：\(Int(commit))")
                             Slider(value: $commit, in: 0...Double(state.troops), step: 50)
+                        }
+                        Text("可用糧草：\(state.rations)")
+                        HStack {
+                            Text("投入糧草：\(Int(commitRations))")
+                            Slider(value: $commitRations, in: 0...Double(state.rations), step: 10)
                         }
                         if state.hasRampageBuff {
                             Text("勢如破竹：本場士氣 +10%")
@@ -62,15 +68,18 @@ struct BattleView: View {
                 }
 
                 Button {
-                    let used = Int(commit)
-                    guard used > 0 else { return }
+                    let usedTroops = Int(commit)
+                    guard usedTroops > 0 else { return }
+                    let usedRations = Int(commitRations)
                     let selected = GeneralCatalog.all.filter { selectedGeneralIDs.contains($0.id) }
                     outcome = BattleSystem.fight(
                         stage: stage,
-                        commitTroops: used,
+                        commitTroops: usedTroops,
+                        commitRations: usedRations,
                         state: state,
                         selectedGenerals: Array(selected.prefix(maxGenerals))
                     )
+                    showOutcomeAlert = true
                 } label: {
                     Text("攻打")
                         .frame(maxWidth: .infinity)
@@ -81,24 +90,27 @@ struct BattleView: View {
                 }
                 .disabled(state.troops == 0)
 
-                if let o = outcome {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text(o.victory ? "勝利！" : "戰敗…")
-                            .font(.title3).bold()
-                            .foregroundStyle(o.victory ? .green : .red)
-                        Text("士氣：x\(String(format: "%.2f", o.moraleUsed))")
-                        Text("我方損失：\(o.myLosses)")
-                        Text("敵方損失：\(o.enemyLosses)")
-                        Text(o.notes).foregroundStyle(.secondary)
-                    }
-                    .padding()
-                    .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 12))
-                }
-
                 Spacer()
             }
             .padding()
             .navigationTitle("出征")
+            .alert(outcome?.victory == true ? "勝利！" : "戰敗…", isPresented: $showOutcomeAlert, presenting: outcome) { _ in
+                Button("好", role: .cancel) {
+                    if let o = outcome, o.victory {
+                        // 推進到下一關（若尚未到最後）
+                        if state.currentStageIndex + 1 < Campaign.all.count {
+                            state.currentStageIndex += 1
+                        }
+                    }
+                }
+            } message: { o in
+                Text(
+                    "士氣：x\(String(format: "%.2f", o.moraleUsed))\n" +
+                    "我方損失：\(o.myLosses)\n" +
+                    "敵方損失：\(o.enemyLosses)\n" +
+                    o.notes
+                )
+            }
         }
     }
 
@@ -159,3 +171,4 @@ private struct Tag: View {
             .background(.ultraThinMaterial, in: Capsule())
     }
 }
+
