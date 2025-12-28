@@ -38,7 +38,7 @@ enum GeneralCatalog {
             type: .warrior,
             price: 5000,
             imageName: "Guan-yu",
-            attackBonus: 0.20,               // 溫酒斬將（簡化：+20% 攻擊）
+            attackBonus: 0.20,
             enemyMoraleMultiplier: 1.0,
             lossReduction: 0.05,
             defeatLossHalve: false
@@ -50,7 +50,7 @@ enum GeneralCatalog {
             price: 4500,
             imageName: "Zhang-fei",
             attackBonus: 0.10,
-            enemyMoraleMultiplier: 0.90,     // 長坂吼聲（簡化：敵方士氣 -10%）
+            enemyMoraleMultiplier: 0.90,
             lossReduction: 0.05,
             defeatLossHalve: false
         ),
@@ -63,7 +63,7 @@ enum GeneralCatalog {
             attackBonus: 0.12,
             enemyMoraleMultiplier: 1.0,
             lossReduction: 0.10,
-            defeatLossHalve: true            // 單騎救主（敗北時損失減半）
+            defeatLossHalve: true
         ),
         General(
             id: "Ma-chao",
@@ -94,7 +94,7 @@ enum GeneralCatalog {
             price: 3800,
             imageName: "Jiang-wei",
             attackBonus: 0.08,
-            enemyMoraleMultiplier: 0.95,     // 小幅削弱敵方
+            enemyMoraleMultiplier: 0.95,
             lossReduction: 0.08,
             defeatLossHalve: false
         ),
@@ -104,8 +104,8 @@ enum GeneralCatalog {
             type: .strategist,
             price: 10000,
             imageName: "Zhu-ge-liang",
-            attackBonus: 0.4,               // 神機妙算（簡化：+15% 攻擊）
-            enemyMoraleMultiplier: 0.8,     // 小幅削弱敵方
+            attackBonus: 0.4,
+            enemyMoraleMultiplier: 0.8,
             lossReduction: 0.10,
             defeatLossHalve: true
         )

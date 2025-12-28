@@ -5,7 +5,6 @@ import LaTeXSwiftUI
 struct QuizView: View {
     @ObservedObject var state: GameState
 
-    // 依你提供的方法：以狀態機控制頁面
     @State private var questions: [Question] = []
     @State private var index: Int = 0                 // 目前第幾題（0-based）
     @State private var stage: String = "quiz"        // "quiz", "answer", "end"
@@ -14,7 +13,6 @@ struct QuizView: View {
     @State private var userIsCorrect: Bool = false
     @State private var lastResult: AnswerResult? = nil
 
-    // 本回合統計（可在 End 顯示）
     @State private var sessionCorrect: Int = 0
     @State private var sessionIP: Int = 0
 
@@ -41,7 +39,6 @@ struct QuizView: View {
             .background(Color.clear)
         }
         .onAppear {
-            // 直接開始題目；若沒有可用題目則顯示結束頁
             if questions.isEmpty {
                 startSession()
             }
@@ -239,7 +236,6 @@ struct QuizView: View {
                     if questions.isEmpty {
                         startSession()
                     } else {
-                        // 若題目已經有，但 index 超出，回到 quiz 重取
                         stage = "quiz"
                     }
                 }
@@ -293,7 +289,7 @@ struct QuizView: View {
     }
 
     private func availablePool() -> [Question] {
-        // 僅從「尚未答對」的題目中抽題
+        // 僅從尚未答對的題目中抽題
         let all = QuestionBank.shared.all()
         return all.filter { !state.answeredCorrect.contains($0.id) }
     }

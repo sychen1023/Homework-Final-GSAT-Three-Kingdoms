@@ -23,7 +23,6 @@ public enum Difficulty: String, Codable, CaseIterable {
     }
 }
 
-// 最簡單的題目模型：主題、年份、題幹、選項、正確索引、解析（可選）、難度
 public struct Question: Identifiable, Codable, Hashable {
     public var id: UUID
     public var subject: String        // 直接用字串，如：「國文」「英文」「歷史」
@@ -148,11 +147,8 @@ public final class QuestionBank {
         }
     }
 
-    // MARK: - 占位題（自擬，非歷屆真題；可隨時替換）
-    // 注意：以下樣本題僅為占位，風格接近學測，但非歷屆真題。
-
+    // MARK: - 示範題庫
     static let sampleQuestions: [Question] = [
-        // 三國/歷史相關（中等）
         Question(
             subject: "歷史",
             year: 2024,
@@ -1506,24 +1502,3 @@ public final class QuestionBank {
         )
     ]
 }
-
-/*
- JSON 範例（請依此格式提供你已授權可用的題目）：
- [
-   {
-     "id":"C7B5C2B7-2F67-4F36-8B9D-6F2E1B3B2F10",
-     "subject":"國文",
-     "year":2021,
-     "prompt":"（題幹文字…）",
-     "choices":["A 選項","B 選項","C 選項","D 選項"],
-     "answer":2,
-     "explanation":"（解析，可省略）",
-     "difficulty":"medium"
-   }
- ]
- 注意：
- - 若省略 id，請在載入前自行補上 UUID（或改為非必要欄位）。
- - 學測歷屆題多受著作權保護，正式上架前請確認授權；占位題可先跑流程。
-*/
-
-

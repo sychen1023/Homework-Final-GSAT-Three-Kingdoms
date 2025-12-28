@@ -10,19 +10,12 @@ import LaTeXSwiftUI
 
 
 private enum Theme {
-    // 淺黃色（accent）
     static let accent = Color(.sRGB, red: 1, green: 0.3, blue: 0.2, opacity: 1.0)
-    // 主要前景（柔和白）
     static let primaryFG = Color.white.opacity(0.65)
-    // 次要前景（較淡的白）
     static let secondaryFG = Color.white.opacity(0.45)
-    // 卡片底（半透明深色）- 供非首頁使用
     static let cardBG = Color.black.opacity(0.28)
-    // 卡片描邊（極淡白）
     static let cardStroke = Color.white.opacity(0.08)
-    // 選項/按鈕底（微亮）
     static let buttonBG = Color.white.opacity(0.10)
-    // 背景遮罩強度
     static let backdrop = Color.black.opacity(0.30)
 }
 

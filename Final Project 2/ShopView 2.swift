@@ -8,7 +8,6 @@ struct ShopView: View {
             ScrollView(.vertical) {
                 VStack(alignment: .leading, spacing: 20) {
 
-                    // 資源：兵馬（Troops） - 橫向卷動
                     Text("資源：兵馬")
                         .font(.title3.weight(.semibold))
                         .foregroundStyle(.white)
@@ -41,7 +40,6 @@ struct ShopView: View {
                         .padding(.horizontal)
                     }
 
-                    // 資源：糧草（Rations） - 橫向卷動
                     Text("資源：糧草")
                         .font(.title3.weight(.semibold))
                         .foregroundStyle(.white)
@@ -74,7 +72,6 @@ struct ShopView: View {
                         .padding(.horizontal)
                     }
 
-                    // 武將（永久資產） - 橫向卷動，大圖、正方形、對齊頂部
                     Text("武將")
                         .font(.title3.weight(.semibold))
                         .foregroundStyle(.white)
@@ -98,7 +95,6 @@ struct ShopView: View {
                         .padding(.horizontal)
                     }
 
-                    // 資產概況
                     VStack(alignment: .leading, spacing: 8) {
                         Text("資產概況")
                             .font(.title3.weight(.semibold))
@@ -123,7 +119,7 @@ struct ShopView: View {
                 }
                 .padding(.vertical, 16)
             }
-            .background(Color.clear) // 讓底層背景透出
+            .background(Color.clear)
             .navigationTitle("招兵買馬")
             .toolbarBackground(.hidden, for: .navigationBar)
         }
@@ -211,11 +207,10 @@ private struct GeneralBigCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             ZStack(alignment: .topTrailing) {
-                // 大正方形，對齊頂部
                 Image(general.imageName)
                     .resizable()
                     .scaledToFill()
-                    .frame(width: imageSize, height: imageSize, alignment: .top) // 對齊頂部裁切
+                    .frame(width: imageSize, height: imageSize, alignment: .top)
                     .clipped()
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                     .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.black.opacity(0.12)))
